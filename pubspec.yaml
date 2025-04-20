@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  video_player: ^2.9.5
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +18,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/videos/
+    - assets/images/
