@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:lychakingo/features/home/ui/screens/home_screen.dart'; 
-
+import 'package:lychakingo/features/authentication/ui/widgets/auth_wrapper.dart'; 
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -28,15 +27,15 @@ class _IntroScreenState extends State<IntroScreen> {
   void _checkVideoEnd() {
     if (_controller.value.isInitialized &&
         _controller.value.position == _controller.value.duration) {
-      _navigateToHome();
+      _navigateToAuth();
     }
   }
 
-  void _navigateToHome() {
+  void _navigateToAuth() {
      _controller.removeListener(_checkVideoEnd);
      Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
+            builder: (context) => const AuthWrapper(),
           ),
         );
   }
@@ -58,7 +57,7 @@ class _IntroScreenState extends State<IntroScreen> {
                 aspectRatio: _controller.value.aspectRatio,
                 child: VideoPlayer(_controller),
               )
-            : const CircularProgressIndicator(),
+            : Container(),
       ),
     );
   }
