@@ -15,7 +15,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance; // Firestore instance
+  final _firestore = FirebaseFirestore.instance; 
 
   String? _errorMessage;
   bool _isLoading = false;
