@@ -1,6 +1,3 @@
-
-
-
 import firebase_admin
 import firebase_functions.options
 from firebase_functions import https_fn, options
@@ -54,15 +51,13 @@ try:
 
         genai.configure(api_key=gemini_api_key_value)
         
-        gemini_model = genai.GenerativeModel('gemini-pro')
+        gemini_model = genai.GenerativeModel('gemini-1.5-flash-latest')
         
-        print("Successfully configured Gemini API and initialized model (gemini-pro).") 
+        print("Successfully configured Gemini API and initialized model (gemini-1.5-flash-latest).") 
     except Exception as gemini_e:
         print(f"ERROR configuring Gemini: {gemini_e}")
         print(traceback.format_exc())
         
-
-    
     try:
         print("Configuring DeepL...") 
         secret_id_deepl = "DEEPL_KEY" 
@@ -109,8 +104,6 @@ def ask_ai_tutor(req: https_fn.Request) -> https_fn.Response:
     
     return handle_ask_ai_tutor(req, gemini_model)
 
-
-
 @https_fn.on_request(
     cors=options.CorsOptions(cors_origins="*", cors_methods=["post"]),
     
@@ -124,6 +117,5 @@ def translate_text(req: https_fn.Request) -> https_fn.Response:
         print(f"Error: DeepL translator not initialized due to configuration error: {config_error_message}")
         return https_fn.Response(json.dumps({"error": f"Translator configuration error: {config_error_message or 'Unknown reason'}"}), status=500, mimetype="application/json")
 
-    
     return handle_translate_text(req, deepl_translator)
 

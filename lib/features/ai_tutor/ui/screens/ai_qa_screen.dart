@@ -39,7 +39,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
       _aiAnswer = ''; 
     });
 
-    const String cloudFunctionUrl = 'https://europe-west1-lychakingo-b1a79.cloudfunctions.net/ask_ai_tutor';
+    const String cloudFunctionUrl = 'https://ask-ai-tutor-dep6ecqopa-ew.a.run.app';
 
     try {
       final response = await http.post(
