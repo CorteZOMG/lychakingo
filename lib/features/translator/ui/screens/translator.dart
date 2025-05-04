@@ -1,10 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:lychakingo/features/translator/ui/screens/translation_history.dart';
 
 const List<Map<String, String>> supportedLanguages = [
   {'code': 'UK', 'name': 'Ukrainian'},
-  {'code': 'EN-US', 'name': 'English'},
+  {'code': 'EN-US', 'name': 'English'}, 
   {'code': 'DE', 'name': 'German'},
   {'code': 'FR', 'name': 'French'},
   {'code': 'ES', 'name': 'Spanish'},
@@ -22,22 +26,60 @@ class TranslationScreen extends StatefulWidget {
 
 class _TranslationScreenState extends State<TranslationScreen> {
   final TextEditingController _textEditingController = TextEditingController();
+  
   String? _sourceLang = 'EN-US'; 
-  String? _targetLang = 'UK'; 
+  String? _targetLang = 'UK';    
   String _outputText = '';
   bool _isLoading = false;
   String? _error;
 
+  
+  Future<void> _saveTranslationHistory(String inputText, String outputText, String? sourceLang, String? targetLang, String? errorMsg) async {
+     final String? userId = FirebaseAuth.instance.currentUser?.uid;
+     
+     if (userId == null || sourceLang == null || targetLang == null || inputText.isEmpty) {
+        print("Cannot save translation history: Missing user ID, languages, or input text.");
+        return;
+     }
+
+     try {
+        await FirebaseFirestore.instanceFor(
+          app: Firebase.app(),
+          databaseId: 'main-db') 
+           .collection('userHistories')
+           .doc(userId)
+           .collection('translationHistory')
+           .add({
+             'inputText': inputText,
+             'outputText': outputText, 
+             'sourceLang': sourceLang,
+             'targetLang': targetLang,
+             'error': errorMsg, 
+             'timestamp': FieldValue.serverTimestamp(), 
+           });
+       print("Translation history saved successfully.");
+     } catch (e) {
+       print("Error saving translation history: $e");   
+     }
+  }
+  
+
   Future<void> _translateText() async {
     
-    if (_textEditingController.text.isEmpty || _sourceLang == null || _targetLang == null) {
+    final String inputText = _textEditingController.text;
+    final String? sourceLangForHistory = _sourceLang;
+    final String? targetLangForHistory = _targetLang;
+    String finalOutput = ''; 
+    String? errorForHistory; 
+    
+    if (inputText.isEmpty || sourceLangForHistory == null || targetLangForHistory == null) {
       setState(() {
         _error = "Please enter text and select languages.";
         _outputText = '';
       });
       return;
     }
-    if (_sourceLang == _targetLang) {
+    if (sourceLangForHistory == targetLangForHistory) {
        setState(() {
         _error = "Source and target languages must be different.";
         _outputText = '';
@@ -47,60 +89,67 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
     setState(() {
       _isLoading = true;
-      _error = null; 
-      _outputText = ''; 
+      _error = null;
+      _outputText = '';
     });
 
     try {
       
       final response = await http.post(
-        Uri.parse(deepLFunctionUrl), 
+        Uri.parse(deepLFunctionUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          
-          'text': _textEditingController.text,
-          'source_lang': _sourceLang,
-          'target_lang': _targetLang,
+          'text': inputText, 
+          'source_lang': sourceLangForHistory, 
+          'target_lang': targetLangForHistory, 
         }),
       );
 
       if (!mounted) return;
+
       if (response.statusCode == 200) {
         
         final responseBody = jsonDecode(response.body);
-        
         setState(() {
           _outputText = responseBody['translated_text'] ?? 'No translation received.';
+          finalOutput = _outputText; 
         });
       } else {
         
         print('Backend Error: ${response.statusCode} ${response.body}');
-        
         String serverErrorMsg = response.body;
         try {
           final errorBody = jsonDecode(response.body);
-          
           serverErrorMsg = errorBody['error'] ?? errorBody['message'] ?? response.body;
-        } catch (_) {
-          
-        }
+        } catch (_) {}
         setState(() {
           _error = 'Error translating (${response.statusCode}): $serverErrorMsg';
+          errorForHistory = _error; 
         });
       }
-    } catch (e) {  
-      if (!mounted) return;
-      print('Network/Request Error: $e');
-      setState(() {
-        _error = 'Failed to connect. Please check your connection or the URL.';
-      });
+    } catch (e) {
+       
+       if (!mounted) return;
+       print('Network/Request Error: $e');
+       setState(() {
+         _error = 'Failed to connect. Please check your connection or the URL.';
+         errorForHistory = _error; 
+       });
     } finally {
-      
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+       
+       await _saveTranslationHistory(
+           inputText,
+           finalOutput, 
+           sourceLangForHistory,
+           targetLangForHistory,
+           errorForHistory 
+       );
+       
+       if (mounted) {
+         setState(() {
+           _isLoading = false;
+         });
+       }
     }
   }
 
@@ -112,10 +161,44 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   @override
   Widget build(BuildContext context) {
+     
+    Future<void> _signOut(BuildContext context) async {
+      try {
+        await FirebaseAuth.instance.signOut();
+        
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Successfully logged out!')),
+          );
+        }
+      } catch (e) {
+        print('Error signing out: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error logging out: $e')),
+          );
+        }
+      }
+    }
+     
     return Scaffold(
-      appBar: AppBar( 
-        title: const Text('Translator'),
+      appBar: AppBar(
+         
+         automaticallyImplyLeading: false,
+         title: const Text('Translator'),
+          
+         actions: [
+           IconButton(
+             icon: const Icon(Icons.logout),
+             tooltip: 'Logout',
+             onPressed: () {
+               _signOut(context); 
+             },
+           ),
+         ],
+         
       ),
+      
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -131,25 +214,25 @@ class _TranslationScreenState extends State<TranslationScreen> {
                   onChanged: (String? newValue) {
                     setState(() {
                       _sourceLang = newValue;
-                      _error = null; 
+                      _error = null;
                     });
                   },
                 ),
-                const Icon(Icons.swap_horiz, size: 30), 
+                const Icon(Icons.swap_horiz, size: 30),
                 _buildLanguageDropdown(
                    value: _targetLang,
                    hint: 'Target Language',
                    onChanged: (String? newValue) {
                     setState(() {
                       _targetLang = newValue;
-                      _error = null; 
+                      _error = null;
                     });
                   },
                 ),
               ],
             ),
             const SizedBox(height: 20),
-      
+       
             TextField(
               controller: _textEditingController,
               decoration: const InputDecoration(
@@ -157,12 +240,12 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 border: OutlineInputBorder(),
               ),
               maxLines: 5,
-              onChanged: (_) => setState(() { _error = null; }), 
+              onChanged: (_) => setState(() { _error = null; }),
             ),
             const SizedBox(height: 20),
-         
+            
             ElevatedButton(
-              onPressed: _isLoading ? null : _translateText, 
+              onPressed: _isLoading ? null : _translateText,
               child: _isLoading
                   ? const SizedBox(
                       height: 20,
@@ -183,7 +266,18 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 ),
               ),
             const SizedBox(height: 10),
-            
+
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'View History',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TranslationHistoryScreen()),
+              );
+            },
+          ),
+
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(12.0),
@@ -192,8 +286,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
                   borderRadius: BorderRadius.circular(4.0),
                   color: Colors.grey[100],
                 ),
-                child: SingleChildScrollView( 
-                  child: SelectableText( 
+                child: SingleChildScrollView(
+                  child: SelectableText(
                     _outputText,
                     style: const TextStyle(fontSize: 16.0),
                   ),
