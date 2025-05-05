@@ -249,66 +249,57 @@ class _AiQaScreenState extends State<AiQaScreen> {
    }
    
 
+  
+
   @override
   Widget build(BuildContext context) {
-    
-    return Scaffold(
-      appBar: AppBar(
-         automaticallyImplyLeading: false,
-         title: const Text('Ask Artem Lychak'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
-        child: Column(
-          children: [
-            
-            Expanded( child: _buildChatList(), ),
-            const SizedBox(height: 8.0),
-            
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _questionController,
-                      
-                      decoration: InputDecoration(
-                        hintText: 'Ask a question...', 
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24.0), 
-                           borderSide: BorderSide(color: Colors.grey.shade400),
-                        ),
-                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24.0),
-                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), 
+    return Padding(    
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0, top: 16.0),
+      child: Column(
+        children: [
+          Expanded( child: _buildChatList(), ), 
+          const SizedBox(height: 8.0),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _questionController,
+                    decoration: InputDecoration(
+                      hintText: 'Ask a question...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24.0),
+                        borderSide: BorderSide(color: Colors.grey.shade400), 
                       ),
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: _isLoading ? null : (_) => _askAI(),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24.0),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: _isLoading ? null : (_) => _askAI(),
                   ),
-                  const SizedBox(width: 8.0),
-                  
-                  IconButton(
-                    icon: const Icon(Icons.send), 
-                    onPressed: _isLoading ? null : _askAI,
-                    
-                    style: IconButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: const EdgeInsets.all(12),
-                       shape: const CircleBorder(), 
-                    ),
-                    tooltip: 'Ask Artem Lychak',
+                ),
+                const SizedBox(width: 8.0),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _isLoading ? null : _askAI,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.all(12),
+                    shape: const CircleBorder(),
                   ),
-                ],
-              ),
+                  tooltip: 'Ask Artem Lychak', 
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ); 
   }
 }
