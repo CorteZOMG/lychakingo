@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:lychakingo/features/translator/ui/screens/translation_history.dart';
+import 'package:lychakingo/features/translator/ui/screens/translation_history_screen.dart';
 
 const List<Map<String, String>> supportedLanguages = [
   {'code': 'UK', 'name': 'Ukrainian'},
@@ -161,42 +161,11 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   @override
   Widget build(BuildContext context) {
-     
-    Future<void> _signOut(BuildContext context) async {
-      try {
-        await FirebaseAuth.instance.signOut();
-        
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Successfully logged out!')),
-          );
-        }
-      } catch (e) {
-        print('Error signing out: $e');
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error logging out: $e')),
-          );
-        }
-      }
-    }
-     
+      
     return Scaffold(
       appBar: AppBar(
-         
          automaticallyImplyLeading: false,
          title: const Text('Translator'),
-          
-         actions: [
-           IconButton(
-             icon: const Icon(Icons.logout),
-             tooltip: 'Logout',
-             onPressed: () {
-               _signOut(context); 
-             },
-           ),
-         ],
-         
       ),
       
       body: Padding(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
-import 'package:lychakingo/features/home/ui/screens/home_screen.dart';
+import 'package:lychakingo/features/home/ui/screens/main_app_shell.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});

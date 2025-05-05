@@ -252,35 +252,10 @@ class _AiQaScreenState extends State<AiQaScreen> {
   @override
   Widget build(BuildContext context) {
     
-    Future<void> _signOut(BuildContext context) async {
-      try {
-        await FirebaseAuth.instance.signOut();
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Successfully logged out!')),
-          );
-        }
-      } catch (e) {
-        print('Error signing out: $e');
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error logging out: $e')),
-          );
-        }
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
          automaticallyImplyLeading: false,
          title: const Text('Ask Artem Lychak'),
-         actions: [
-           IconButton(
-             icon: const Icon(Icons.logout), 
-             tooltip: 'Logout',
-             onPressed: () { _signOut(context); },
-           ),
-         ],
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
