@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart'; 
-import 'package:lychakingo/features/lessons/domain/models/lesson.dart';
-import 'package:lychakingo/features/lessons/domain/models/lesson_progress.dart';
-import 'package:lychakingo/features/lessons/data/lesson_data.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:lychakingo/features/lessons/domain/models/lesson.dart'; 
+import 'package:lychakingo/features/lessons/domain/models/lesson_progress.dart'; 
+import 'package:lychakingo/features/lessons/data/lesson_data.dart'; 
 import 'package:lychakingo/features/lessons/ui/screens/theory_screen.dart'; 
 
 class LessonListScreen extends StatefulWidget {
@@ -29,67 +29,86 @@ class _LessonListScreenState extends State<LessonListScreen> {
   @override
   Widget build(BuildContext context) {
     if (userId == null) {
-      return Scaffold(
-          appBar: AppBar(title: const Text("Lessons")),
-          body: const Center(child: Text("Please log in to see lessons.")));
+      return const Center(child: Text("Please log in to see lessons."));
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Lessons"),
-        automaticallyImplyLeading: false,
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'main-db')
-            .collection('userProgress')
-            .doc(userId)
-            .collection('lessonProgress')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error loading progress: ${snapshot.error}'));
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'main-db')
+          .collection('userProgress')
+          .doc(userId)
+          .collection('lessonProgress')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error loading progress: ${snapshot.error}'));
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final progressDocs = snapshot.data?.docs ?? [];
+        final Map<String, LessonProgress> progressMap = {
+          for (var doc in progressDocs) doc.id: LessonProgress.fromSnapshot(doc)
+        };
+
+        double averageStars = 0.0;
+        int completedCount = 0;
+        int totalStars = 0;
+        for (var progress in progressMap.values) {
+          if (progress.isCompleted && progress.stars != null) {
+            completedCount++;
+            totalStars += progress.stars!;
           }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        }
+        if (completedCount > 0) {
+          averageStars = totalStars / completedCount;
+        }
 
-          final progressDocs = snapshot.data?.docs ?? [];
-          final Map<String, LessonProgress> progressMap = {
-            for (var doc in progressDocs)
-              doc.id: LessonProgress.fromSnapshot(doc)
-          };
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.stars, color: Colors.orangeAccent.shade700),
+                  const SizedBox(width: 8),
+                  Text(
+                    completedCount > 0
+                        ? 'Середня оцінка: ${averageStars.toStringAsFixed(1)} зірочок'
+                        : 'Проходьте уроки щоб покращити оцінку!',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView.builder(
+                itemCount: allLessons.length,
+                itemBuilder: (context, index) {
+                  final lesson = allLessons[index];
+                  final lessonProgress = progressMap[lesson.id];
+                  bool isLocked = true;
+                  int stars = lessonProgress?.stars ?? 0;
+                  if (lesson.prerequisiteLessonId == null) { isLocked = false; }
+                  else {
+                    final prerequisiteProgress = progressMap[lesson.prerequisiteLessonId];
+                    if (prerequisiteProgress != null && prerequisiteProgress.isCompleted) { isLocked = false; }
+                  }
+                  bool isCompleted = lessonProgress?.isCompleted ?? false;
+                  bool canStartLesson = !isLocked;
 
-          return ListView.builder(
-            itemCount: allLessons.length,
-            itemBuilder: (context, index) {
-              final lesson = allLessons[index];
-              final lessonProgress = progressMap[lesson.id];
-              bool isLocked = true;
-              int stars = lessonProgress?.stars ?? 0;
-
-              if (lesson.prerequisiteLessonId == null) {
-                isLocked = false;
-              } else {
-                final prerequisiteProgress = progressMap[lesson.prerequisiteLessonId];
-                if (prerequisiteProgress != null && prerequisiteProgress.isCompleted) {
-                    isLocked = false;
-                }
-              }
-              bool isCompleted = lessonProgress?.isCompleted ?? false;
-              bool canStartLesson = !isLocked;
-              
-              return _buildLessonTile(
-                context: context,
-                lesson: lesson,
-                isLocked: isLocked,
-                isCompleted: isCompleted,
-                stars: stars,
-                canStart: canStartLesson,
-              );
-            },
-          );
-        },
-      ),
+                  return _buildLessonTile(
+                    context: context, lesson: lesson, isLocked: isLocked,
+                    isCompleted: isCompleted, stars: stars, canStart: canStartLesson,
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -101,12 +120,12 @@ class _LessonListScreenState extends State<LessonListScreen> {
     required int stars,
     required bool canStart,
   }) {
-    final iconData = lessonIcons[lesson.iconName] ?? lessonIcons['default']!;
-    final theme = Theme.of(context);
-    final tileColor = isCompleted ? Colors.green.shade50 : (isLocked ? Colors.grey.shade300 : null);
-    final leadingColor = isLocked ? Colors.grey.shade600 : (isCompleted ? Colors.green.shade700 : theme.colorScheme.primary);
+     final iconData = lessonIcons[lesson.iconName] ?? lessonIcons['default']!;
+     final theme = Theme.of(context);
+     final tileColor = isCompleted ? Colors.green.shade50 : (isLocked ? Colors.grey.shade300 : null);
+     final leadingColor = isLocked ? Colors.grey.shade600 : (isCompleted ? Colors.green.shade700 : theme.colorScheme.primary);
 
-    return Card(
+     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       elevation: canStart ? 2 : 0,
       color: tileColor,
@@ -139,13 +158,12 @@ class _LessonListScreenState extends State<LessonListScreen> {
         onTap: canStart
             ? () {
                 print("Navigating to theory for lesson: ${lesson.title}");
-                Navigator.push(
-                  context,
+                Navigator.push( context,
                   MaterialPageRoute(builder: (context) => TheoryScreen(lesson: lesson)),
                 );
               }
-            : null,      
+            : null,
       ),
     );
-  } 
+  }
 }

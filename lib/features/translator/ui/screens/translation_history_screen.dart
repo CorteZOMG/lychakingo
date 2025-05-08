@@ -59,14 +59,14 @@ class _TranslationHistoryScreenState extends State<TranslationHistoryScreen> {
   Widget build(BuildContext context) {
     if (userId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Translation History")),
+        appBar: AppBar(title: const Text("Історія перекладача")),
         body: const Center(child: Text("Please log in to see history.")),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Translation History"),        
+        title: const Text("Історія перекладача"),        
                 
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -88,7 +88,7 @@ class _TranslationHistoryScreenState extends State<TranslationHistoryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No translation history found.'));
+            return const Center(child: Text('Не знайдено даних.'));
           }
           
           return ListView.builder(
@@ -139,7 +139,7 @@ class _TranslationHistoryScreenState extends State<TranslationHistoryScreen> {
                   icon: Icon(Icons.delete_outline, size: 20, color: Colors.grey.shade500),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  tooltip: 'Delete item',
+                  tooltip: 'Видалити',
                   onPressed: () => _deleteHistoryItem(docId), 
                 ),
               ],

@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful!')),
+          const SnackBar(content: Text('Вхід успішний!')),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Логін'),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -82,11 +82,11 @@ class _LoginScreenState extends State<LoginScreen> {
               children: <Widget>[
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  decoration: const InputDecoration(labelText: 'Ел. пошта'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty || !value.contains('@')) {
-                      return 'Please enter a valid email';
+                      return 'Будь ласка, введіть коректну пошту';
                     }
                     return null;
                   },
@@ -94,11 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Пароль'),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Пароль повинен містити щонайменше 6 символів';
                     }
                     return null;
                   },
@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       builder: (context) => const RegisterScreen(),
                     ));
                   },
-                  child: const Text('Don\'t have an account? Register'),
+                  child: const Text('Немає акаунту? Зареєструйтесь'),
                 ),
               ],
             ),

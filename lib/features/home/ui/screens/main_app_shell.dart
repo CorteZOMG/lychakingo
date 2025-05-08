@@ -5,7 +5,6 @@ import 'package:lychakingo/features/ai_tutor/ui/screens/ai_qa_screen.dart';
 import 'package:lychakingo/features/lessons/ui/screens/lesson_list_screen.dart';
 import 'package:lychakingo/features/home/ui/screens/home_screen.dart';
 
-
 class MainAppShell extends StatefulWidget {
   const MainAppShell({super.key});
 
@@ -54,7 +53,6 @@ class _MainAppShellState extends State<MainAppShell> {
   Widget _buildEndDrawer(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Drawer(
       child: Column(
@@ -78,7 +76,6 @@ class _MainAppShellState extends State<MainAppShell> {
                         color: Colors.white, 
                       ),
                     ),
-                    // ---------------------------------
                     decoration: BoxDecoration(
                        color: colorScheme.primary,
                     ),
@@ -91,7 +88,7 @@ class _MainAppShellState extends State<MainAppShell> {
             const Divider(height: 1), 
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
+              title: const Text('Вийти'),
               onTap: () {
                 _signOut(context);
               },
@@ -112,7 +109,7 @@ class _MainAppShellState extends State<MainAppShell> {
         actions: [
           IconButton(
             icon: const Icon(Icons.menu), 
-            tooltip: 'User Menu',
+            tooltip: 'Меню',
             onPressed: () {
               _scaffoldKey.currentState?.openEndDrawer(); 
             },
@@ -129,10 +126,10 @@ class _MainAppShellState extends State<MainAppShell> {
 
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
-           BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), activeIcon: Icon(Icons.chat_bubble), label: 'AI Tutor'),
-           BottomNavigationBarItem(icon: Icon(Icons.translate_outlined), activeIcon: Icon(Icons.translate), label: 'Translator'),
-           BottomNavigationBarItem(icon: Icon(Icons.school_outlined), activeIcon: Icon(Icons.school), label: 'Lessons'),
+           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Головна'),
+           BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), activeIcon: Icon(Icons.chat_bubble), label: 'ШІ асистент'),
+           BottomNavigationBarItem(icon: Icon(Icons.translate_outlined), activeIcon: Icon(Icons.translate), label: 'Перекладач'),
+           BottomNavigationBarItem(icon: Icon(Icons.school_outlined), activeIcon: Icon(Icons.school), label: 'Уроки'),
         ],
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,

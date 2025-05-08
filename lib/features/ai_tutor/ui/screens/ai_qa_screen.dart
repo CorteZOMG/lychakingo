@@ -1,13 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 class AiQaScreen extends StatefulWidget {
   const AiQaScreen({super.key});
@@ -51,7 +47,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
       print("Error saving AI history: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Couldn't save history: $e"),
+            content: Text("Історія недоступна: $e"),
             duration: const Duration(seconds: 2)));
       }
     }
@@ -73,7 +69,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
     final String questionText = _questionController.text.trim();
     if (questionText.isEmpty) {
        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please enter a question."), duration: Duration(seconds: 2))
+          const SnackBar(content: Text("Будь ласка, задайте питання."), duration: Duration(seconds: 2))
        );
       return;
     }
@@ -122,7 +118,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
         print("Error fetching/preparing chat history: $e");
          if(mounted){
           ScaffoldMessenger.of(context).showSnackBar(
-             SnackBar(content: Text("Couldn't load history: $e"), duration: const Duration(seconds: 2))
+             SnackBar(content: Text("Історія недоступна: $e"), duration: const Duration(seconds: 2))
           );
         }
       }
@@ -188,7 +184,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
        builder: (context, snapshot) {
          if (snapshot.hasError) { return Center(child: Text('Error: ${snapshot.error}'));}
          if (snapshot.connectionState == ConnectionState.waiting) { return const Center(child: CircularProgressIndicator()); }
-         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) { return const Center(child: Text('Ask a question!')); }
+         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) { return const Center(child: Text('Задавайте питання!')); }
 
          WidgetsBinding.instance.addPostFrameCallback((_) {
            if (_scrollController.hasClients) {
@@ -247,10 +243,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
        ),
      );
    }
-   
-
   
-
   @override
   Widget build(BuildContext context) {
     return Padding(    
@@ -268,7 +261,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
                   child: TextField(
                     controller: _questionController,
                     decoration: InputDecoration(
-                      hintText: 'Ask a question...',
+                      hintText: 'Задайте питання...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24.0),
                         borderSide: BorderSide(color: Colors.grey.shade400), 
@@ -293,7 +286,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
                     padding: const EdgeInsets.all(12),
                     shape: const CircleBorder(),
                   ),
-                  tooltip: 'Ask Artem Lychak', 
+                  tooltip: 'Запитайте в Артема Личака', 
                 ),
               ],
             ),

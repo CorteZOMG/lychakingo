@@ -24,13 +24,13 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),              
               Text(
-                'Welcome back!', 
+                'Радий вас бачити!', 
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                'Ready to learn something new?',
+                'Готові вивчити щось новеньке?',
                  style: Theme.of(context).textTheme.bodyLarge,
                  textAlign: TextAlign.center,
               ),              

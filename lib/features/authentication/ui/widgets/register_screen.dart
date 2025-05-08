@@ -56,20 +56,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration Successful!')),
+          const SnackBar(content: Text('Реєстрація успішна!')),
         );
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        _errorMessage = 'The password provided is too weak.';
+        _errorMessage = 'Пароль занадто слабкий.';
       } else if (e.code == 'email-already-in-use') {
-        _errorMessage = 'An account already exists for that email.';
+        _errorMessage = 'Ця пошта вже використовується.';
       } else {
-        _errorMessage = 'An error occurred during registration.';
+        _errorMessage = 'Виникла помилка.';
         print('Firebase Auth Error: ${e.code} - ${e.message}');
       }
     } catch (e) {
-      _errorMessage = 'An unexpected error occurred.';
+      _errorMessage = 'Виникла помилка.';
       print('Registration Error: $e');
     } finally {
       if (mounted) {
@@ -84,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register'),
+        title: const Text('Реєстрація'),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -97,11 +97,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: <Widget>[
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  decoration: const InputDecoration(labelText: 'Ел. пошта'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty || !value.contains('@')) {
-                      return 'Please enter a valid email';
+                      return 'Введіть коректну пошту.';
                     }
                     return null;
                   },
@@ -109,11 +109,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Пароль'),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Пароль повинен містити щонайменше 6 символів.';
                     }
                     return null;
                   },
@@ -121,14 +121,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(labelText: 'Confirm Password'),
+                  decoration: const InputDecoration(labelText: 'Підтвердіть пароль'),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return 'Підтвердіть пароль';
                     }
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'Паролі не сходяться';
                     }
                     return null;
                   },
@@ -147,14 +147,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : ElevatedButton(
                         onPressed: _register,
-                        child: const Text('Register'),
+                        child: const Text('Реєстрація'),
                       ),
                 const SizedBox(height: 16.0),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(); 
                   },
-                  child: const Text('Already have an account? Login'),
+                  child: const Text('Вже маєте акаунт? Увійдіть'),
                 ),
               ],
             ),

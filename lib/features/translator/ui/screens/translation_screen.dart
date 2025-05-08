@@ -65,7 +65,6 @@ class _TranslationScreenState extends State<TranslationScreen> {
   
 
   Future<void> _translateText() async {
-    
     final String inputText = _textEditingController.text;
     final String? sourceLangForHistory = _sourceLang;
     final String? targetLangForHistory = _targetLang;
@@ -74,14 +73,14 @@ class _TranslationScreenState extends State<TranslationScreen> {
     
     if (inputText.isEmpty || sourceLangForHistory == null || targetLangForHistory == null) {
       setState(() {
-        _error = "Please enter text and select languages.";
+        _error = "Введіть текст та оберіть мови.";
         _outputText = '';
       });
       return;
     }
     if (sourceLangForHistory == targetLangForHistory) {
        setState(() {
-        _error = "Source and target languages must be different.";
+        _error = "Мови повинні бути різні.";
         _outputText = '';
       });
       return;
@@ -111,7 +110,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
         
         final responseBody = jsonDecode(response.body);
         setState(() {
-          _outputText = responseBody['translated_text'] ?? 'No translation received.';
+          _outputText = responseBody['translated_text'] ?? 'Не отримано результат.';
           finalOutput = _outputText; 
         });
       } else {
@@ -132,7 +131,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
        if (!mounted) return;
        print('Network/Request Error: $e');
        setState(() {
-         _error = 'Failed to connect. Please check your connection or the URL.';
+         _error = 'Failed to connect. Please check your connection.';
          errorForHistory = _error; 
        });
     } finally {
@@ -165,7 +164,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     return Scaffold(
       appBar: AppBar(
          automaticallyImplyLeading: false,
-         title: const Text('Translator'),
+         title: const Text('Перекладач'),
       ),
       
       body: Padding(
@@ -179,7 +178,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
               children: <Widget>[
                 _buildLanguageDropdown(
                   value: _sourceLang,
-                  hint: 'Source Language',
+                  hint: 'З мови',
                   onChanged: (String? newValue) {
                     setState(() {
                       _sourceLang = newValue;
@@ -190,7 +189,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 const Icon(Icons.swap_horiz, size: 30),
                 _buildLanguageDropdown(
                    value: _targetLang,
-                   hint: 'Target Language',
+                   hint: 'На мову',
                    onChanged: (String? newValue) {
                     setState(() {
                       _targetLang = newValue;
@@ -205,7 +204,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             TextField(
               controller: _textEditingController,
               decoration: const InputDecoration(
-                hintText: 'Enter text to translate...',
+                hintText: 'Введіть текст який бажаєте перекласти',
                 border: OutlineInputBorder(),
               ),
               maxLines: 5,
@@ -221,7 +220,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
                     )
-                  : const Text('Translate'),
+                  : const Text('Перекласти'),
             ),
             const SizedBox(height: 10),
             
@@ -238,7 +237,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
           IconButton(
             icon: const Icon(Icons.history),
-            tooltip: 'View History',
+            tooltip: 'Історія',
             onPressed: () {
               Navigator.push(
                 context,
