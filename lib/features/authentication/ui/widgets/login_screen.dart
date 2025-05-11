@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'register_screen.dart';
+import 'package:lychakingo/features/authentication/ui/widgets/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,16 +45,17 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Вхід успішний!')),
         );
+        
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
-        _errorMessage = 'Invalid email or password.';
+        _errorMessage = 'Неправильна пошта або пароль.'; 
       } else {
-        _errorMessage = 'An error occurred. Please try again.';
+        _errorMessage = 'Виникла помилка. Будь ласка, спробуйте ще раз.'; 
         print('Firebase Auth Error: ${e.code} - ${e.message}');
       }
     } catch (e) {
-      _errorMessage = 'An unexpected error occurred.';
+      _errorMessage = 'Виникла непередбачена помилка.'; 
       print('Sign In Error: $e');
     } finally {
       if (mounted) {
@@ -67,9 +68,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const TextStyle whiteTextStyle = TextStyle(color: Colors.white);
+    const TextStyle whiteHintStyle = TextStyle(color: Colors.white70);
+    const TextStyle whiteErrorStyle = TextStyle(color: Colors.white70);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Логін'),
+        title: const Text('Логін'), 
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -82,7 +88,12 @@ class _LoginScreenState extends State<LoginScreen> {
               children: <Widget>[
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Ел. пошта'),
+                  style: whiteTextStyle, 
+                  decoration: const InputDecoration(
+                    labelText: 'Ел. пошта',
+                    labelStyle: whiteHintStyle, 
+                    errorStyle: whiteErrorStyle, 
+                  ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty || !value.contains('@')) {
@@ -94,7 +105,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Пароль'),
+                  style: whiteTextStyle, 
+                  decoration: const InputDecoration(
+                    labelText: 'Пароль',
+                    labelStyle: whiteHintStyle, 
+                    errorStyle: whiteErrorStyle, 
+                  ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length < 6) {
@@ -109,24 +125,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.only(bottom: 10.0),
                     child: Text(
                       _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold), 
                       textAlign: TextAlign.center,
                     ),
                   ),
                 _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator(color: Colors.white)) 
                     : ElevatedButton(
                         onPressed: _signIn,
-                        child: const Text('Login'),
+                        child: const Text('Login'), 
                       ),
                 const SizedBox(height: 16.0),
                 TextButton(
                   onPressed: () {
+                    
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => const RegisterScreen(),
                     ));
                   },
-                  child: const Text('Немає акаунту? Зареєструйтесь'),
+                  child: const Text('Немає акаунту? Зареєструйтесь'), 
                 ),
               ],
             ),

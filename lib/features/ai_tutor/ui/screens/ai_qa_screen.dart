@@ -172,9 +172,7 @@ class _AiQaScreenState extends State<AiQaScreen> {
        _scrollToBottom();
     }
   }
-  
 
-  
   Widget _buildChatList() {
      if (userId == null) { return const Center(child: Text("Please log in")); }
      return StreamBuilder<QuerySnapshot>(
@@ -262,9 +260,11 @@ class _AiQaScreenState extends State<AiQaScreen> {
                     controller: _questionController,
                     decoration: InputDecoration(
                       hintText: 'Задайте питання...',
+                      filled: true,
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24.0),
-                        borderSide: BorderSide(color: Colors.grey.shade400), 
+                        borderSide: BorderSide.none,
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24.0),

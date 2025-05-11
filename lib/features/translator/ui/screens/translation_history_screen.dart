@@ -150,7 +150,7 @@ class _TranslationHistoryScreenState extends State<TranslationHistoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                    child: SelectableText(inputText, style: const TextStyle(fontSize: 15))
+                    child: SelectableText(inputText, style: const TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)))
                 ),
                 IconButton(
                   icon: Icon(Icons.copy, size: 18, color: Colors.grey.shade500),
@@ -166,16 +166,16 @@ class _TranslationHistoryScreenState extends State<TranslationHistoryScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Expanded(
-                   child: SelectableText(
-                     outputText,
-                     style: TextStyle(
-                       fontSize: 15,
-                       fontWeight: hadError ? FontWeight.normal : FontWeight.w500,
-                       color: hadError ? Colors.red.shade800 : Theme.of(context).textTheme.bodyLarge?.color,
-                     ),
-                   )
-                 ),
+                Expanded(
+                  child: SelectableText(
+                    outputText,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: hadError ? FontWeight.normal : FontWeight.w500,
+                      color: hadError ? Color.fromARGB(255, 255, 0, 0) : Color.fromARGB(255, 0, 0, 0), 
+                    ),
+                  )
+                ),
                  
                  if (!hadError)
                    IconButton(
@@ -187,7 +187,6 @@ class _TranslationHistoryScreenState extends State<TranslationHistoryScreen> {
                    ),
               ],
             ),
-
              
              if (timestampStr.isNotEmpty) ...[
                 const SizedBox(height: 8),
@@ -199,7 +198,6 @@ class _TranslationHistoryScreenState extends State<TranslationHistoryScreen> {
                   ),
                 ),
              ]
-
           ],
         ),
       ),

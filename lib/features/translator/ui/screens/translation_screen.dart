@@ -160,14 +160,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   @override
   Widget build(BuildContext context) {
-      
-    return Scaffold(
-      appBar: AppBar(
-         automaticallyImplyLeading: false,
-         title: const Text('Перекладач'),
-      ),
-      
-      body: Padding(
+      return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -176,7 +169,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                _buildLanguageDropdown(
+                Expanded(
+                child: _buildLanguageDropdown(
                   value: _sourceLang,
                   hint: 'З мови',
                   onChanged: (String? newValue) {
@@ -186,8 +180,16 @@ class _TranslationScreenState extends State<TranslationScreen> {
                     });
                   },
                 ),
+              ),
+              Padding( // Add padding around the icon if it feels too close
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            ),
                 const Icon(Icons.swap_horiz, size: 30),
-                _buildLanguageDropdown(
+                Padding( // Add padding around the icon if it feels too close
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            ),
+                Expanded(
+                child: _buildLanguageDropdown(
                    value: _targetLang,
                    hint: 'На мову',
                    onChanged: (String? newValue) {
@@ -197,16 +199,47 @@ class _TranslationScreenState extends State<TranslationScreen> {
                     });
                   },
                 ),
+                ),
               ],
             ),
             const SizedBox(height: 20),
        
             TextField(
               controller: _textEditingController,
-              decoration: const InputDecoration(
+              style: const TextStyle(
+              color: Colors.black, 
+              fontSize: 16, 
+            ),
+
+              decoration: InputDecoration(
                 hintText: 'Введіть текст який бажаєте перекласти',
-                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,  
+                enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0), // Adjust radius as you like
+                borderSide: BorderSide(
+                  color: Colors.grey.shade400, // Color for the border when enabled
+                  width: 1.0,
+                ),
               ),
+              // Border when the field is focused
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0), // Keep radius consistent
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary, // Use theme's primary color for focus
+                  width: 2.0, // Make border thicker on focus
+                ),
+              ),
+              // You might also want to define 'border' for a general case or 'errorBorder'
+              // For a simpler setup if you want the same border always (just color changes on focus):
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                // borderSide: BorderSide.none, // Use this if you only want the fill and no visible border line
+              ),
+              // Ensure content padding is appropriate for the new border
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0)
+              ),
+              
               maxLines: 5,
               onChanged: (_) => setState(() { _error = null; }),
             ),
@@ -248,41 +281,98 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(16.0), // Adjusted padding for a bit more space inside
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(4.0),
-                  color: Colors.grey[100],
+                  color: Colors.white, // Set background to white
+                  borderRadius: BorderRadius.circular(12.0), // Set desired border radius
+                  border: Border.all(
+                    color: Colors.grey.shade300, // Softer grey border color
+                    width: 1.0,
+                  ),
+                  // You could add a subtle shadow if you like:
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //     color: Colors.grey.withOpacity(0.2),
+                  //     spreadRadius: 1,
+                  //     blurRadius: 3,
+                  //     offset: Offset(0, 1),
+                  //   ),
+                  // ],
                 ),
-                child: SingleChildScrollView(
+                child: SingleChildScrollView( // Good for long translated text
                   child: SelectableText(
                     _outputText,
-                    style: const TextStyle(fontSize: 16.0),
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black87, // Set text color to black (or Colors.black)
+                    ),
                   ),
                 ),
               ),
             ),
           ],
-        ),
       ),
     );
   }
   
-  Widget _buildLanguageDropdown({
-      required String? value,
-      required String hint,
-      required ValueChanged<String?> onChanged,
-  }) {
-    return DropdownButton<String>(
-      value: value,
-      hint: Text(hint),
-      onChanged: onChanged,
-      items: supportedLanguages.map<DropdownMenuItem<String>>((Map<String, String> lang) {
-        return DropdownMenuItem<String>(
-          value: lang['code']!,
-          child: Text(lang['name']!),
+    Widget _buildLanguageDropdown({
+        required String? value,
+        required String hint,
+        required ValueChanged<String?> onChanged,
+      }) {
+
+        final TextStyle menuItemStyle = TextStyle(
+          color: Colors.black87, 
+          fontSize: 16,
         );
-      }).toList(),
-    );
-  }
+
+        final TextStyle hintStyle = TextStyle(
+          color: Colors.white70, 
+          fontSize: 16,
+        );
+
+        final TextStyle mainSelectedItemStyle = TextStyle(
+          color: Colors.white, 
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        );
+
+        return DropdownButton<String>(
+          value: value,
+          hint: Text(hint, style: hintStyle),
+          isExpanded: true, 
+          iconSize: 28,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.white), 
+
+          selectedItemBuilder: (BuildContext context) {
+            return supportedLanguages.map<Widget>((Map<String, String> item) {
+              return DropdownMenuItem<String>(
+                value: item['code']!,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    item['name']!,
+                    style: mainSelectedItemStyle, 
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              );
+            }).toList();
+          },
+
+          underline: Container( 
+            height: 1,
+            color: Colors.white,
+          ),
+
+          dropdownColor: Colors.white, 
+          onChanged: onChanged,
+          items: supportedLanguages.map<DropdownMenuItem<String>>((Map<String, String> lang) {
+            return DropdownMenuItem<String>(
+              value: lang['code']!,
+              child: Text(lang['name']!, style: menuItemStyle), 
+            );
+          }).toList(),
+        ); 
+    }
 }

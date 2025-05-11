@@ -15,8 +15,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance; 
-
+  final _firestore = FirebaseFirestore.instance;
   String? _errorMessage;
   bool _isLoading = false;
 
@@ -43,12 +42,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-
+      
       if (userCredential.user != null) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'email': userCredential.user!.email,
           'createdAt': FieldValue.serverTimestamp(),
-          'points': 0, 
+          'points': 0,
           'streak': 0,
           'completedLessons': [],
         });
@@ -57,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Реєстрація успішна!')),
-        );
+        );        
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -82,9 +81,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const TextStyle whiteTextStyle = TextStyle(color: Colors.white);
+    const TextStyle whiteHintStyle = TextStyle(color: Colors.white70);
+    const TextStyle whiteErrorStyle = TextStyle(color: Colors.white70);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Реєстрація'),
+        title: const Text('Реєстрація'), 
+        
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -97,7 +101,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: <Widget>[
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Ел. пошта'),
+                  style: whiteTextStyle,
+                  decoration: const InputDecoration(
+                    labelText: 'Ел. пошта',
+                    labelStyle: whiteHintStyle,
+                    errorStyle: whiteErrorStyle,
+                  ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty || !value.contains('@')) {
@@ -109,7 +118,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Пароль'),
+                  style: whiteTextStyle,
+                  decoration: const InputDecoration(
+                    labelText: 'Пароль',
+                    labelStyle: whiteHintStyle,
+                    errorStyle: whiteErrorStyle,
+                  ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length < 6) {
@@ -121,7 +135,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(labelText: 'Підтвердіть пароль'),
+                  style: whiteTextStyle,
+                  decoration: const InputDecoration(
+                    labelText: 'Підтвердіть пароль',
+                    labelStyle: whiteHintStyle,
+                    errorStyle: whiteErrorStyle,
+                  ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -139,22 +158,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     padding: const EdgeInsets.only(bottom: 10.0),
                     child: Text(
                       _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red), 
                       textAlign: TextAlign.center,
                     ),
                   ),
                 _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator(color: Colors.white)) 
                     : ElevatedButton(
                         onPressed: _register,
-                        child: const Text('Реєстрація'),
+                        child: const Text('Реєстрація'), 
                       ),
                 const SizedBox(height: 16.0),
                 TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); 
+                  onPressed: () {          
+                    Navigator.of(context).pop();
                   },
-                  child: const Text('Вже маєте акаунт? Увійдіть'),
+                  child: const Text('Вже маєте акаунт? Увійдіть'), 
                 ),
               ],
             ),

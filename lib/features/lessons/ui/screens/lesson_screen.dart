@@ -123,44 +123,73 @@ class _LessonScreenState extends State<LessonScreen> {
     if (!mounted) return;
 
     final bool passed = stars > 0;
-    final String title = passed ? "Lesson Complete!" : "Try Again!";
+    final String titleText = passed ? "Lesson Complete!" : "Try Again!";
     final int correctCount = (score * widget.lesson.tasks.length).round();
     final int totalTasks = widget.lesson.tasks.length;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final Color onSurfaceColor = colorScheme.onSurface; 
+
     Widget content;
     List<Widget> actions;
 
     if (passed) {
-      content = Column( mainAxisSize: MainAxisSize.min, children: [
-          Row( mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (index) => Icon( index < stars ? Icons.star : Icons.star_border, color: Colors.amber, size: 40,))),
-          const SizedBox(height: 16),
-          Text("You got $correctCount out of $totalTasks correct.", textAlign: TextAlign.center),
-          Text("Score: ${(score * 100).toStringAsFixed(0)}%", style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text("Time: ${_formatDuration(duration)}", style: Theme.of(context).textTheme.bodyMedium),
-        ],);
+      content = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row( mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (index) => Icon( index < stars ? Icons.star : Icons.star_border, color: Colors.amber, size: 40,))),
+            const SizedBox(height: 16),
+            Text("You got $correctCount out of $totalTasks correct.", textAlign: TextAlign.center, style: TextStyle(color: onSurfaceColor)),
+            Text("Score: ${(score * 100).toStringAsFixed(0)}%", style: textTheme.titleMedium?.copyWith(color: onSurfaceColor)),
+            const SizedBox(height: 8),
+            Text("Time: ${_formatDuration(duration)}", style: textTheme.bodyMedium?.copyWith(color: onSurfaceColor)),
+          ],
+        );
        actions = <Widget>[
-            TextButton( child: const Text('Retry Lesson'), onPressed: () { Navigator.of(context).pop(); _resetLesson(); }, ),
-            ElevatedButton( child: const Text('Continue'), onPressed: () { Navigator.of(context).pop(); if (Navigator.canPop(context)) { Navigator.of(context).pop(); } }, ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: onSurfaceColor), 
+              child: const Text('Retry Lesson'),
+              onPressed: () { Navigator.of(context).pop(); _resetLesson(); },
+            ),
+            ElevatedButton( 
+              child: const Text('Continue'),
+              onPressed: () { Navigator.of(context).pop(); if (Navigator.canPop(context)) { Navigator.of(context).pop(); } },
+            ),
           ];
     } else {
-       content = Column( mainAxisSize: MainAxisSize.min, children: [
-           const Icon(Icons.sentiment_dissatisfied_outlined, color: Colors.red, size: 40),
-           const SizedBox(height: 16),
-           Text("You got $correctCount out of $totalTasks correct.", textAlign: TextAlign.center),
-           const Text("You need at least 50% to pass this lesson.", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
-           const SizedBox(height: 8),
-           Text("Time: ${_formatDuration(duration)}", style: Theme.of(context).textTheme.bodyMedium),
-        ],);
+       content = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+             Icon(Icons.sentiment_dissatisfied_outlined, color: Colors.red.shade700, size: 40),
+             const SizedBox(height: 16),
+             Text("You got $correctCount out of $totalTasks correct.", textAlign: TextAlign.center, style: TextStyle(color: onSurfaceColor)),
+             Text("You need at least 50% to pass this lesson.", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: onSurfaceColor)),
+             const SizedBox(height: 8),
+             Text("Time: ${_formatDuration(duration)}", style: textTheme.bodyMedium?.copyWith(color: onSurfaceColor)),
+          ],
+        );
         actions = <Widget>[
-            TextButton( child: const Text('Back to Lessons'), onPressed: () { Navigator.of(context).pop(); if (Navigator.canPop(context)) { Navigator.of(context).pop(); } },),
-            ElevatedButton( child: const Text('Retry Lesson'), onPressed: () { Navigator.of(context).pop(); _resetLesson(); }, ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: onSurfaceColor), 
+              child: const Text('Back to Lessons'),
+              onPressed: () { Navigator.of(context).pop(); if (Navigator.canPop(context)) { Navigator.of(context).pop(); } },
+            ),
+            ElevatedButton( 
+              child: const Text('Retry Lesson'),
+              onPressed: () { Navigator.of(context).pop(); _resetLesson(); },
+            ),
           ];
     }
 
     await showDialog(
-      context: context, barrierDismissible: false,
+      context: context,
+      barrierDismissible: false,
       builder: (BuildContext dialogContext) {
-        return AlertDialog( title: Text(title), content: content, actions: actions,);
+        return AlertDialog(
+          title: Text(titleText, style: TextStyle(color: onSurfaceColor)), 
+          content: content, 
+          actions: actions,
+        );
       },
     );
   }
@@ -175,18 +204,39 @@ class _LessonScreenState extends State<LessonScreen> {
   }
 
   Future<void> _showExitConfirmationDialog() async {
-        final bool? exitConfirmed = await showDialog<bool>(
-            context: context, builder: (BuildContext dialogContext) {
-                return AlertDialog(
-                  title: const Text('Exit Lesson?'),
-                  content: const Text('Are you sure you want to exit? Your progress in this lesson will not be saved.'),
-                  actions: <Widget>[
-                    TextButton( child: const Text('Cancel'), onPressed: () { Navigator.of(dialogContext).pop(false); },),
-                    TextButton( child: const Text('Exit'), style: TextButton.styleFrom(foregroundColor: Colors.red), onPressed: () { Navigator.of(dialogContext).pop(true); },),
-                  ],
-                );
-             },
+    
+    final Color onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+
+    final bool? exitConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          
+          title: Text('Exit Lesson?', style: TextStyle(color: onSurfaceColor)), 
+          content: Text( 
+            'Are you sure you want to exit? Your progress in this lesson will not be saved.',
+            style: TextStyle(color: onSurfaceColor),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: onSurfaceColor), 
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+            ),
+            TextButton(
+              
+              style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
+              child: const Text('Exit'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+            ),
+          ],
         );
+      },
+    );
         if (exitConfirmed == true && mounted) { Navigator.of(context).pop(); }
     }
 

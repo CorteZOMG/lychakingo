@@ -1,5 +1,3 @@
-// FILE: lib/features/lessons/domain/models/task.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:math';
@@ -24,7 +22,6 @@ abstract class Task {
   dynamic get correctAnswer;
 }
 
-// --- Fill Blank Task ---
 class FillBlankTask extends Task {
   final List<String> sentenceParts;
   final String correctFilling;
@@ -105,40 +102,78 @@ class _FillBlankTaskWidgetState extends State<_FillBlankTaskWidget> {
     super.dispose();
   }
 
-  @override
+  double _calculateTextWidth(String text, TextStyle style) {
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout(minWidth: 0, maxWidth: double.infinity);
+    return textPainter.size.width;
+  }
+
+ @override
   Widget build(BuildContext context) {
-    // Explicitly get text color for light backgrounds from theme
-    final defaultTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87;
-    final textStyle = TextStyle(fontSize: 18, color: defaultTextColor); // Use explicit color
-    final inputFieldWidth = 100.0;
+    final TextStyle explicitRichTextStyle = TextStyle(
+      fontSize: 18,
+      color: Colors.black87, 
+      decoration: TextDecoration.none,
+      fontFamily: DefaultTextStyle.of(context).style.fontFamily,
+    );
+
+    final TextStyle textFieldStyleForMeasurement = explicitRichTextStyle.copyWith(
+        fontWeight: FontWeight.bold,
+        
+    );
+
+    String textToMeasure = widget.task.correctFilling.isNotEmpty
+        ? widget.task.correctFilling
+        : "MMMM"; 
+    
+    
+    if ((widget.currentAnswer?.length ?? 0) > textToMeasure.length) {
+      textToMeasure = widget.currentAnswer!;
+    }
+
+    double calculatedWidth = _calculateTextWidth(textToMeasure, textFieldStyleForMeasurement);
+    calculatedWidth += 132.0; 
+    
+    final double dynamicInputFieldWidth = calculatedWidth.clamp(
+        80.0, 
+        MediaQuery.of(context).size.width * 0.6, 
+    );
 
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: Colors.white, // <<< Explicitly set Card background to white
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), // Optional: Rounded corners
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0), // Increased padding
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.task.instruction, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              widget.task.instruction,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.black) ??
+                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+            ),
             const SizedBox(height: 24),
             RichText(
               text: TextSpan(
-                style: textStyle, // Apply style with explicit color
+                style: explicitRichTextStyle, 
                 children: [
                   TextSpan(text: widget.task.sentenceParts[0]),
                   WidgetSpan(
                     alignment: PlaceholderAlignment.baseline,
                     baseline: TextBaseline.alphabetic,
                     child: SizedBox(
-                      width: inputFieldWidth,
+                      width: dynamicInputFieldWidth, 
                       child: TextField(
                         controller: _textController,
                         textAlign: TextAlign.center,
-                        // Style for the input text itself
-                        style: textStyle.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                        style: explicitRichTextStyle.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary),
                         decoration: InputDecoration(
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(vertical: 2),
@@ -163,7 +198,6 @@ class _FillBlankTaskWidgetState extends State<_FillBlankTaskWidget> {
   }
 }
 
-// --- Multiple Choice Task ---
 class MultipleChoiceTask extends Task {
   final String questionText;
   final List<String> options;
@@ -233,19 +267,25 @@ class _MultipleChoiceTaskWidgetState extends State<_MultipleChoiceTaskWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Card( // Use Card
+    return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: Colors.white, // <<< Explicitly set Card background to white
+      color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.task.instruction, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              widget.task.instruction,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.black) ?? const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)
+            ),
             const SizedBox(height: 8),
-            Text(widget.task.questionText, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            Text(
+              widget.task.questionText,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black87)
+            ),
             const SizedBox(height: 16),
             Column(
               mainAxisSize: MainAxisSize.min,
@@ -253,7 +293,7 @@ class _MultipleChoiceTaskWidgetState extends State<_MultipleChoiceTaskWidget> {
                 int index = entry.key;
                 String optionText = entry.value;
                 return RadioListTile<int>(
-                  title: Text(optionText, style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color ?? Colors.black87)), // Explicit text color
+                  title: Text(optionText, style: const TextStyle(color: Colors.black87)),
                   value: index,
                   groupValue: _selectedIndex,
                   onChanged: (int? newValue) {
@@ -272,7 +312,6 @@ class _MultipleChoiceTaskWidgetState extends State<_MultipleChoiceTaskWidget> {
   }
 }
 
-// --- Sentence Order Task ---
 class SentenceOrderTask extends Task {
   final List<String> words;
   final List<String> correctOrder;
@@ -367,24 +406,27 @@ class _SentenceOrderTaskWidgetState extends State<_SentenceOrderTaskWidget> {
   @override
   Widget build(BuildContext context) {
      final theme = Theme.of(context);
-    return Card( // Use Card
+    return Card(
        elevation: 0,
        margin: EdgeInsets.zero,
-       color: Colors.white, // <<< Explicitly set Card background to white
+       color: Colors.white,
        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
        child: Padding(
-         padding: const EdgeInsets.all(16.0), // Increased padding
+         padding: const EdgeInsets.all(16.0),
          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.task.instruction, style: theme.textTheme.titleMedium),
+            Text(
+              widget.task.instruction,
+              style: theme.textTheme.titleMedium?.copyWith(color: Colors.black) ?? const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)
+            ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.only(bottom: 16),
               constraints: const BoxConstraints(minHeight: 60),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100, // Lighter background for drop zone
+                color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: theme.colorScheme.outlineVariant)
               ),
@@ -397,28 +439,31 @@ class _SentenceOrderTaskWidgetState extends State<_SentenceOrderTaskWidget> {
                       int idx = entry.key;
                       String word = entry.value;
                       return Chip(
-                        label: Text(word),
+                        label: Text(word, style: const TextStyle(color: Colors.black87)),
                         onDeleted: () => _deselectWord(idx),
-                        deleteIcon: const Icon(Icons.close, size: 14),
-                        backgroundColor: theme.colorScheme.secondaryContainer, // Use theme color
-                        labelStyle: TextStyle(color: theme.colorScheme.onSecondaryContainer),
+                        deleteIcon: const Icon(Icons.close, size: 14, color: Colors.black54),
+                        backgroundColor: theme.colorScheme.secondaryContainer,
+                        labelStyle: TextStyle(color: theme.colorScheme.onSecondaryContainer), 
                       );
                     }).toList(),
               ),
             ),
-            const Divider(height: 1),
+            const Divider(height: 1, color: Colors.grey),
             const SizedBox(height: 16),
-            Text("Available words:", style: theme.textTheme.bodySmall),
+            Text(
+              "Available words:",
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54) ?? const TextStyle(color: Colors.black54)
+            ),
              const SizedBox(height: 8),
             Wrap(
               spacing: 8.0,
               runSpacing: 8.0,
               children: availableWords.map((word) {
                 return ActionChip(
-                  label: Text(word),
+                  label: Text(word, style: const TextStyle(color: Colors.black87)),
                   onPressed: () => _selectWord(word),
-                  backgroundColor: theme.colorScheme.surfaceVariant, // Use theme color
-                   labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  backgroundColor: theme.colorScheme.surfaceVariant,
+                   labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant), 
                 );
               }).toList(),
             ),
@@ -429,7 +474,6 @@ class _SentenceOrderTaskWidgetState extends State<_SentenceOrderTaskWidget> {
   }
 }
 
-// --- Matching Pairs Task ---
 class MatchingPairsTask extends Task {
   final Map<String, String> pairs;
 
@@ -443,7 +487,7 @@ class MatchingPairsTask extends Task {
   bool isAnswerCorrect(dynamic userAnswer) {
      if (userAnswer is! Map) return false;
      final Map<String, String?> userAnswerMap = Map<String, String?>.from(userAnswer);
-     if (userAnswerMap.values.where((v) => v != null).length != pairs.length) return false; // Check if all pairs were attempted
+     if (userAnswerMap.values.where((v) => v != null).length != pairs.length) return false;
      for (var entry in pairs.entries) {
         if (!userAnswerMap.containsKey(entry.key) || userAnswerMap[entry.key] != entry.value) {
           return false;
@@ -515,7 +559,7 @@ class _MatchingPairsTaskWidgetState extends State<_MatchingPairsTaskWidget> {
 
   void _selectLeft(String item) {
     if (_isLeftMatched(item)) {
-      _unmatchLeft(item); // Tap matched left item to unmatch it
+      _unmatchLeft(item);
     } else {
       setState(() { _selectedLeft = item; });
     }
@@ -558,30 +602,34 @@ class _MatchingPairsTaskWidgetState extends State<_MatchingPairsTaskWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Use Card instead of Material
+    final TextStyle buttonTextStyle = TextStyle(color: Colors.black87); 
+    final TextStyle matchedButtonTextStyle = TextStyle(color: Colors.grey.shade600, decoration: TextDecoration.lineThrough);
+
     return Card(
        elevation: 0,
        margin: EdgeInsets.zero,
-       color: Colors.white, // <<< Explicitly set Card background to white
+       color: Colors.white,
        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
        child: Padding(
-         padding: const EdgeInsets.all(16.0), // Increased padding
+         padding: const EdgeInsets.all(16.0),
          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.task.instruction, style: theme.textTheme.titleMedium),
+            Text(
+              widget.task.instruction,
+              style: theme.textTheme.titleMedium?.copyWith(color: Colors.black) ?? const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)
+            ),
             const SizedBox(height: 24),
             Text(
                 _selectedLeft == null
                     ? "Tap an item on the left, then its match on the right."
                     : "Selected: '$_selectedLeft'. Tap its match on the right.",
-                style: theme.textTheme.bodySmall),
+                style: theme.textTheme.bodySmall?.copyWith(color: Colors.black54) ?? const TextStyle(color: Colors.black54)),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left Column
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: leftOptions.map((item) {
@@ -596,13 +644,11 @@ class _MatchingPairsTaskWidgetState extends State<_MatchingPairsTaskWidget> {
                            backgroundColor: isSelected ? theme.colorScheme.primaryContainer : null,
                            side: BorderSide(color: isSelected ? theme.colorScheme.primary : (isMatched ? Colors.grey.shade400 : theme.colorScheme.outline)),
                         ),
-                        child: Text( item, style: TextStyle( color: isMatched ? Colors.grey.shade600 : null, decoration: isMatched ? TextDecoration.lineThrough : null ) ),
+                        child: Text( item, style: isMatched ? matchedButtonTextStyle : buttonTextStyle ),
                       ),
                     );
                   }).toList(),
                 ),
-
-                // Right Column
                 Column(
                    mainAxisSize: MainAxisSize.min,
                    children: rightOptions.map((item) {
@@ -616,7 +662,7 @@ class _MatchingPairsTaskWidgetState extends State<_MatchingPairsTaskWidget> {
                              minimumSize: const Size(120, 40),
                              side: BorderSide(color: isMatched ? Colors.grey.shade400 : theme.colorScheme.outline)
                           ),
-                          child: Text( item, style: TextStyle( color: isMatched ? Colors.grey.shade600 : null, decoration: isMatched ? TextDecoration.lineThrough : null ) ),
+                          child: Text( item, style: isMatched ? matchedButtonTextStyle : buttonTextStyle ),
                        ),
                      );
                    }).toList(),
