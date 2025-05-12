@@ -258,6 +258,10 @@ class _AiQaScreenState extends State<AiQaScreen> {
                 Expanded(
                   child: TextField(
                     controller: _questionController,
+                    style: const TextStyle(
+                      color: Colors.black87, 
+                      fontSize: 16, 
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Задайте питання...',
                       filled: true,

@@ -20,6 +20,7 @@ dependencies:
   firebase_messaging: ^15.2.5
   flutter_local_notifications: ^19.2.0
   flutter_launcher_icons: "^0.13.1"
+  timezone: 0.10.1
 
 dev_dependencies:
   flutter_test:
